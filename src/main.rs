@@ -2,6 +2,8 @@ use bot::Bot;
 use std::env;
 
 mod config;
+mod util;
+mod perm;
 mod bot;
 
 #[tokio::main]

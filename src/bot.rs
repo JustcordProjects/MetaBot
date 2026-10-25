@@ -1,11 +1,11 @@
 use crate::config::Config;
+use crate::{util, perm};
 use std::path::Path;
 use std::env;
 
 use serenity::{
-    async_trait,
-    client::*,
-    all::{Ready, Context, Message, GatewayIntents}
+    all::{Context, CreateMessage, GatewayIntents, Message, Ready},
+    async_trait, client::*
 };
 
 pub struct Bot {
@@ -38,6 +38,22 @@ impl Bot {
         client.start().await?;
         Ok(())
     }
+
+    async fn verify(&self, ctx: &Context, msg: &Message) -> bool {
+        if !perm::can_execute(&self.cfg, msg) {
+            let reply = CreateMessage::new()
+                .embed(util::error_embed(
+                    "Błąd", "Nie masz uprawnień by wykonać tą komendę."
+                ))
+                .reference_message(msg);
+
+            msg.channel_id.send_message(&ctx.http, reply)
+                .await.unwrap();
+
+            return false;
+        }
+        return true;
+    }
 }
 
 #[async_trait]
@@ -49,9 +65,13 @@ impl EventHandler for Bot {
     async fn message(&self, ctx: Context, msg: Message) {
         let prefix = &self.cfg.general.prefix;
         if let Some(rest) = msg.content.strip_prefix(prefix) {
+            if !self.verify(&ctx, &msg).await {
+                return;
+            }
+
             match rest {
                 "hello" => {
-                    msg.channel_id.say(&ctx.http, "Hello, world!")
+                    msg.reply(&ctx.http, "Hello, world!")
                         .await.expect("failed to send message. todo: proper error handling");
                 },
                 _ => {},

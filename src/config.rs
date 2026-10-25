@@ -1,3 +1,4 @@
+use serenity::all::{RoleId, UserId};
 use serde::{Deserialize, Serialize};
 use std::{fs, io, path::Path};
 use eros::IntoUnion;
@@ -26,8 +27,8 @@ impl Default for General {
 #[derive(Debug, Default, Serialize, Deserialize)]
 #[serde(default)]
 pub struct Permissions {
-    pub users: Vec<String>,
-    pub roles: Vec<String>,
+    pub users: Vec<UserId>,
+    pub roles: Vec<RoleId>,
 }
 
 type LoadErrors = (io::Error, toml::de::Error);
