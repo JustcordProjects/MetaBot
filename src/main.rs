@@ -1,14 +1,15 @@
+use bot::Bot;
+use std::env;
+
 mod config;
-use config::Config;
+mod bot;
 
-const CONFIG_PATH: &str = "bot/config.toml";
+#[tokio::main]
+async fn main() -> eros::Result<()> {
+    let _ = dotenvy::dotenv();
 
-fn main() {
-    let config = Config::load(CONFIG_PATH)
-        .expect("failed to load config. todo: proper error handling");
+    let config_path = env::var("MB_CONFIG").unwrap_or("bot/config.toml".into());
+    let bot = Bot::new(&config_path);
 
-    println!("{:#?}", config);
-
-    config.save(CONFIG_PATH)
-        .expect("failed to save config. todo: proper error handling");
+    bot.run().await
 }
