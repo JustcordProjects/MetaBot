@@ -97,3 +97,16 @@ pub fn sh(cfg: &Config, code: &str) -> eros::Result<ExecResult> {
 
     Ok(run_and_capture(&mut cmd)?)
 }
+
+pub fn jb_sh(cfg: &Config, code: &str) -> eros::Result<ExecResult> {
+    assert!(cfg.container.id.is_some());
+
+    let mut cmd = Command::new("podman");
+    cmd.arg("exec")
+        .arg(cfg.container.id.clone().unwrap())
+        .arg(&cfg.general.shell)
+        .arg("-c")
+        .arg(code);
+
+    Ok(run_and_capture(&mut cmd)?)
+}

@@ -1,7 +1,7 @@
 use crate::{
     cmd::{self, Command, CommandKind},
     config::Config,
-    perm, util,
+    perm, util::{self, error_embed},
 };
 
 use std::path::Path;
@@ -63,9 +63,20 @@ impl Bot {
         let reply = match cmd.kind {
             CommandKind::Sh => {
                 let output = util::sh(&self.cfg, cmd.code).expect("todo: proper error handling");
-                CreateMessage::new()
-                    .content(output.text())
+                CreateMessage::new().content(output.text())
             },
+            CommandKind::JbSh if self.cfg.container.id.is_none() => {
+                CreateMessage::new()
+                    .embed(util::error_embed(
+                        "Nie dostępne",
+                        "ID containera nie zostało podane w konfiguracji bota więc ta funkcja jest niedostępna."
+                    ))
+                    .reference_message(msg)
+            },
+            CommandKind::JbSh => {
+                let output = util::jb_sh(&self.cfg, cmd.code).expect("todo: proper error handling");
+                CreateMessage::new().content(output.text())
+            }
             _ => CreateMessage::new()
                 .embed(util::error_embed(
                     "Nie zaimplementowano",

@@ -8,6 +8,7 @@ use eros::IntoUnion;
 pub struct Config {
     pub general: General,
     pub permissions: Permissions,
+    pub container: Container,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -31,6 +32,12 @@ impl Default for General {
 pub struct Permissions {
     pub users: Vec<UserId>,
     pub roles: Vec<RoleId>,
+}
+
+#[derive(Debug, Default, Serialize, Deserialize)]
+#[serde(default)]
+pub struct Container {
+    pub id: Option<String>,
 }
 
 type LoadErrors = (io::Error, toml::de::Error);
