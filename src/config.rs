@@ -14,12 +14,14 @@ pub struct Config {
 #[serde(default)]
 pub struct General {
     pub prefix: String,
+    pub shell: String,
 }
 
 impl Default for General {
     fn default() -> General {
         return General {
             prefix: "~".into(),
+            shell: "/bin/bash".into(),
         };
     }
 }

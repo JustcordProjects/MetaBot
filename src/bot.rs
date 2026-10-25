@@ -1,5 +1,9 @@
-use crate::config::Config;
-use crate::{util, perm};
+use crate::{
+    cmd::{self, Command, CommandKind},
+    config::Config,
+    perm, util,
+};
+
 use std::path::Path;
 use std::env;
 
@@ -54,6 +58,26 @@ impl Bot {
         }
         return true;
     }
+
+    pub async fn execute<'a>(&self, ctx: &Context, msg: &'a Message, cmd: Command<'a>) {
+        let reply = match cmd.kind {
+            CommandKind::Sh => {
+                let output = util::sh(&self.cfg, cmd.code).expect("todo: proper error handling");
+                CreateMessage::new()
+                    .content(output.text())
+            },
+            _ => CreateMessage::new()
+                .embed(util::error_embed(
+                    "Nie zaimplementowano",
+                    "Jeszcze nie zaimplementowane",
+                ))
+                .reference_message(msg)
+        };
+
+        msg.channel_id.send_message(&ctx.http, reply)
+            .await
+            .expect("failed to send message. todo: proper error handling");
+    }
 }
 
 #[async_trait]
@@ -66,6 +90,11 @@ impl EventHandler for Bot {
         let prefix = &self.cfg.general.prefix;
         if let Some(rest) = msg.content.strip_prefix(prefix) {
             if !self.verify(&ctx, &msg).await {
+                return;
+            }
+
+            if let Some(cmd) = cmd::parse(rest) {
+                self.execute(&ctx, &msg, cmd).await;
                 return;
             }
 

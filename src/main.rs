@@ -1,9 +1,13 @@
+// why the fuck this still isn't stable api?
+#![feature(trim_prefix_suffix)]
+
 use bot::Bot;
 use std::env;
 
 mod config;
 mod util;
 mod perm;
+mod cmd;
 mod bot;
 
 #[tokio::main]
