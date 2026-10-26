@@ -39,7 +39,7 @@ pub fn error_embed(title: &str, desc: &str) -> CreateEmbed {
 impl ExecResult {
     pub fn text(&self) -> String {
         let mut result = String::new();
-        result += "```\n";
+        result += "```ansi\n";
         for msg in &self.messages {
             result += &msg.content;
             result += "\n";
